@@ -1,4 +1,4 @@
-let mapleader=","
+let mapleader=" "
 
 call plug#begin(system('echo -n "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/plugged"'))
 Plug 'vimwiki/vimwiki'
@@ -9,8 +9,13 @@ Plug 'kovetskiy/sxhkd-vim'
 Plug 'chrisbra/Colorizer'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
+Plug 'Gavinok/vim-troff'
+Plug 'Raimondi/delimitMate'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'preservim/nerdcommenter'
+Plug 'preservim/nerdtree'
 call plug#end()
 
 source ~/.config/nvim/coc.vim
@@ -23,11 +28,15 @@ autocmd vimenter * colorscheme gruvbox		" calling gruvbox colorscheme
 	set number relativenumber
 	set ignorecase
 	set nohls
-	set textwidth=100
 	set linebreak
 
 	set tabstop=4
 	set shiftwidth=4
+
+" Know the difference between space and tab!
+	set list listchars=nbsp:¬,tab:»·,trail:·,extends:>
+" Spell checking
+	map <F8> :setlocal spell! spelllang=en_us<CR>
 
 	nnoremap gl $
 	nnoremap gh 0
@@ -36,9 +45,18 @@ autocmd vimenter * colorscheme gruvbox		" calling gruvbox colorscheme
 	set cursorcolumn
 	autocmd InsertEnter * norm zz
 
-" commenting with hashtag
-	vnoremap <silent> # :s/^/# /<cr>:noh<cr>
-	vnoremap <silent> -# :s/^# //<cr>:noh<cr>
+" A undo history
+	set undofile
+
+" Remove last word remap consistantly
+	inoremap <C-H> <C-W>
+
+" NerdTree
+	nnoremap <leader>n :NERDTreeToggle<CR>
+
+" Start NERDTree when Vim is started without file arguments.
+	autocmd StdinReadPre * let s:std_in=1
+	autocmd VimEnter * if argc() == 0 && !exists('s:std_in') | NERDTree | endif
 
 
 " Fix visual block
@@ -73,9 +91,8 @@ autocmd vimenter * colorscheme gruvbox		" calling gruvbox colorscheme
 " Ensure files are read as what I want:
 	let g:vimwiki_ext2syntax = {'.Rmd': 'markdown', '.rmd': 'markdown','.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}
 	map <leader>v :VimwikiIndex
-	autocmd BufRead,BufNewFile *.ms,*.me,*.mom,*.man set filetype=groff autocmd BufRead,BufNewFile *.tex set filetype=tex
 " Vimwiki markdown
-	let g:vimwiki_list = [{'path': '~/Notes/VimWiki', 'syntax': 'markdown', 'ext': '.md'}]
+	let g:vimwiki_list = [{'path': '~/MEGAsync/VimWiki', 'syntax': 'markdown', 'ext': '.md'}]
 
 aug i3config_ft_detection
 	au!
@@ -89,19 +106,14 @@ aug end
 
 "" Few usefull auto commands------------
 " Automatically deletes all trailing whitespace and newlines at end of file on save.
-	autocmd BufWritePre * %s/\s\+$//e
-	autocmd BufWritepre * %s/\n\+\%$//e
+"	autocmd BufWritePre * %s/\s\+$//e
+"	autocmd BufWritepre * %s/\n\+\%$//e
 " When shortcut files are updated, renew bash and ranger configs with new material:
 	autocmd BufWritePost files,directories !shortcuts
 " Run xrdb whenever Xdefaults or Xresources are updated.
 	autocmd BufWritePost *Xresources,*Xdefaults !xrdb %
 
 
-if exists('g:started_by_firenvim') && g:started_by_firenvim
-    " general options
-    set laststatus=0 nonumber noruler noshowcmd
-
-    augroup firenvim
-        autocmd BufEnter *.txt setlocal filetype=markdown.pandoc
-    augroup END
-endif
+"" vim-airline specific
+let g:airline_theme='badwolf'
+" let g:airline_powerline_fonts=1
